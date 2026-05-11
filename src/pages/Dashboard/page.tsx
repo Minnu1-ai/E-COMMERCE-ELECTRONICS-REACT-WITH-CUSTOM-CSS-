@@ -2,56 +2,101 @@
 import { Chart, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend, DoughnutController, BarController } from 'chart.js';
 Chart.register(BarController, DoughnutController, BarElement, ArcElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-//  Types 
-interface AdminAccount { username: string; email: string; password: string; }
-interface AdminSession { username: string; email: string; expiresAt: number; }
+//  Types
 interface Product { id: string; name: string; category: string; brand: string; price: number; stock: number; rating: number; available: boolean; image: string; }
 
-//  Storage keys 
-const ACCOUNTS_KEY = 'adminAccounts';
-const SESSION_KEY  = 'adminSession';
-const STOCK_KEY    = 'techhavenStock';
-const SESSION_7D   = 7 * 24 * 60 * 60 * 1000;
-
-//  Auth helpers 
-const readAccounts  = (): AdminAccount[] => { try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '[]'); } catch { return []; } };
-const writeAccounts = (a: AdminAccount[]) => localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a));
-const writeSession  = (s: AdminSession)   => localStorage.setItem(SESSION_KEY,  JSON.stringify(s));
-const clearSession  = ()                  => localStorage.removeItem(SESSION_KEY);
-const readSession   = (): AdminSession | null => { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { return null; } };
-const isAuthenticated = (): boolean => {
-  const s = readSession();
-  if (!s) return false;
-  if (s.expiresAt === Infinity || (s.expiresAt as unknown as string) === 'Infinity') return true;
-  if (Date.now() > s.expiresAt) { clearSession(); return false; }
-  return true;
-};
+//  Storage key
+const STOCK_KEY = 'techhavenStock';
 
 //  Stock helpers 
 function uuid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
 const SEED_PRODUCTS: Omit<Product, 'id'>[] = [
-  { name: 'Apple Elite 14',    category: 'Laptops & PCs', brand: 'Apple',      price: 1663.85, stock: 12, rating: 4.5, available: true,  image: '/images/laptops/Product1.jpg' },
-  { name: 'MSI Premium 70',    category: 'Laptops & PCs', brand: 'MSI',        price: 938.84,  stock: 8,  rating: 4.2, available: true,  image: '/images/laptops/Product2.jpg' },
-  { name: 'Asus Advanced 98',  category: 'Laptops & PCs', brand: 'Asus',       price: 1026.02, stock: 3,  rating: 4.0, available: true,  image: '/images/laptops/Product3.jpg' },
-  { name: 'Oppo Elite 19',     category: 'Smartphones',   brand: 'Oppo',       price: 981.51,  stock: 15, rating: 4.3, available: true,  image: '/images/smartphones/Product1.jpg' },
-  { name: 'Apple Max 93',      category: 'Smartphones',   brand: 'Apple',      price: 2935.31, stock: 6,  rating: 4.8, available: true,  image: '/images/smartphones/Product2.jpg' },
-  { name: 'Sony Air 86',       category: 'Smartphones',   brand: 'Sony',       price: 1593.86, stock: 2,  rating: 4.1, available: true,  image: '/images/smartphones/Product3.jpg' },
-  { name: 'Jabra Mini 20',     category: 'Audio',         brand: 'Jabra',      price: 1589.01, stock: 9,  rating: 4.4, available: true,  image: '/images/audio/Product1.jpg' },
-  { name: 'Skullcandy Pro 83', category: 'Audio',         brand: 'Skullcandy', price: 1867.33, stock: 1,  rating: 3.9, available: true,  image: '/images/audio/Product4.jpg' },
-  { name: 'Bose Pro 78',       category: 'Audio',         brand: 'Bose',       price: 2800.25, stock: 7,  rating: 4.7, available: true,  image: '/images/audio/Product8.jpg' },
-  { name: 'Apple Watch Pro 1', category: 'Wearables',     brand: 'Apple',      price: 799.99,  stock: 11, rating: 4.6, available: true,  image: '/images/wearables/Product1.jpg' },
-  { name: 'Garmin Elite 4',    category: 'Wearables',     brand: 'Garmin',     price: 599.99,  stock: 4,  rating: 4.2, available: true,  image: '/images/wearables/Product4.jpg' },
-  { name: 'Canon EOS R1',      category: 'Cameras',       brand: 'Canon',      price: 2499.99, stock: 5,  rating: 4.9, available: true,  image: '/images/cameras/Product1.jpg' },
-  { name: 'Nikon D850 6',      category: 'Cameras',       brand: 'Nikon',      price: 2799.99, stock: 2,  rating: 4.7, available: true,  image: '/images/cameras/Product6.jpg' },
-  { name: 'Sony Alpha A2',     category: 'Cameras',       brand: 'Sony',       price: 1999.99, stock: 0,  rating: 4.5, available: false, image: '/images/cameras/Product2.jpg' },
-  { name: 'Fitbit Ultra 3',    category: 'Wearables',     brand: 'Fitbit',     price: 349.99,  stock: 18, rating: 4.0, available: true,  image: '/images/wearables/Product3.jpg' },
+  // Laptops & PCs (13)
+  { name: 'Apple Elite 14',       category: 'Laptops & PCs', brand: 'Apple',       price: 1663.85, stock: 12, rating: 4.5, available: true,  image: '/images/laptops/Product1.jpg' },
+  { name: 'MSI Premium 70',       category: 'Laptops & PCs', brand: 'MSI',         price: 938.84,  stock: 8,  rating: 4.2, available: true,  image: '/images/laptops/Product2.jpg' },
+  { name: 'Asus Advanced 98',     category: 'Laptops & PCs', brand: 'Asus',        price: 1026.02, stock: 3,  rating: 4.0, available: true,  image: '/images/laptops/Product3.jpg' },
+  { name: 'Asus Lite 31',         category: 'Laptops & PCs', brand: 'Asus',        price: 1960.94, stock: 7,  rating: 4.1, available: true,  image: '/images/laptops/Product4.jpg' },
+  { name: 'Acer Mini 75',         category: 'Laptops & PCs', brand: 'Acer',        price: 161.93,  stock: 20, rating: 3.8, available: true,  image: '/images/laptops/product5.jpeg' },
+  { name: 'Razer Elite 48',       category: 'Laptops & PCs', brand: 'Razer',       price: 2815.55, stock: 5,  rating: 4.6, available: true,  image: '/images/laptops/Product6.jpg' },
+  { name: 'Acer Advanced 62',     category: 'Laptops & PCs', brand: 'Acer',        price: 540.65,  stock: 14, rating: 4.0, available: true,  image: '/images/laptops/Product7.jpg' },
+  { name: 'MSI Lite 84',          category: 'Laptops & PCs', brand: 'MSI',         price: 1909.42, stock: 6,  rating: 4.3, available: true,  image: '/images/laptops/Product8.jpg' },
+  { name: 'Dell Mini 82',         category: 'Laptops & PCs', brand: 'Dell',        price: 349.16,  stock: 10, rating: 4.1, available: true,  image: '/images/laptops/Product9.jpg' },
+  { name: 'HP Air 53',            category: 'Laptops & PCs', brand: 'HP',          price: 2226.16, stock: 4,  rating: 4.4, available: true,  image: '/images/laptops/Product10.jpg' },
+  { name: 'MSI Max 41',           category: 'Laptops & PCs', brand: 'MSI',         price: 2525.47, stock: 3,  rating: 4.5, available: true,  image: '/images/laptops/Product11.jpg' },
+  { name: 'Razer Air 88',         category: 'Laptops & PCs', brand: 'Razer',       price: 1837.83, stock: 9,  rating: 4.3, available: true,  image: '/images/laptops/Product12.jpg' },
+  { name: 'HP Air 10',            category: 'Laptops & PCs', brand: 'HP',          price: 2898.79, stock: 2,  rating: 4.6, available: true,  image: '/images/laptops/Product13.jpg' },
+  // Smartphones (13)
+  { name: 'Oppo Elite 19',        category: 'Smartphones',   brand: 'Oppo',        price: 981.51,  stock: 15, rating: 4.3, available: true,  image: '/images/smartphones/Product1.jpg' },
+  { name: 'Apple Max 93',         category: 'Smartphones',   brand: 'Apple',       price: 2935.31, stock: 6,  rating: 4.8, available: true,  image: '/images/smartphones/Product2.jpg' },
+  { name: 'Sony Air 86',          category: 'Smartphones',   brand: 'Sony',        price: 1593.86, stock: 2,  rating: 4.1, available: true,  image: '/images/smartphones/Product3.jpg' },
+  { name: 'Google Max 38',        category: 'Smartphones',   brand: 'Google',      price: 2912.02, stock: 8,  rating: 4.5, available: true,  image: '/images/smartphones/Product4.jpg' },
+  { name: 'OnePlus Mini 93',      category: 'Smartphones',   brand: 'OnePlus',     price: 1009.82, stock: 11, rating: 4.2, available: true,  image: '/images/smartphones/Product5.jpg' },
+  { name: 'Google Elite 12',      category: 'Smartphones',   brand: 'Google',      price: 1254.22, stock: 7,  rating: 4.4, available: true,  image: '/images/smartphones/Product6.jpg' },
+  { name: 'Xiaomi Ultra 15',      category: 'Smartphones',   brand: 'Xiaomi',      price: 2794.88, stock: 4,  rating: 4.6, available: true,  image: '/images/smartphones/Product7.jpg' },
+  { name: 'Sony Max 14',          category: 'Smartphones',   brand: 'Sony',        price: 734.05,  stock: 13, rating: 4.0, available: true,  image: '/images/smartphones/Product8.jpg' },
+  { name: 'Vivo Ultra 61',        category: 'Smartphones',   brand: 'Vivo',        price: 1644.95, stock: 9,  rating: 4.2, available: true,  image: '/images/smartphones/Product9.jpg' },
+  { name: 'Xiaomi Max 16',        category: 'Smartphones',   brand: 'Xiaomi',      price: 1851.71, stock: 5,  rating: 4.3, available: true,  image: '/images/smartphones/Product10.jpg' },
+  { name: 'Xiaomi Pro 28',        category: 'Smartphones',   brand: 'Xiaomi',      price: 2813.73, stock: 3,  rating: 4.7, available: true,  image: '/images/smartphones/Product11.jpg' },
+  { name: 'Sony Max 13',          category: 'Smartphones',   brand: 'Sony',        price: 1992.27, stock: 10, rating: 4.4, available: true,  image: '/images/smartphones/Product12.jpg' },
+  { name: 'Xiaomi Premium 80',    category: 'Smartphones',   brand: 'Xiaomi',      price: 1344.28, stock: 6,  rating: 4.1, available: true,  image: '/images/smartphones/Product13.jpg' },
+  // Audio (13)
+  { name: 'Jabra Mini 20',        category: 'Audio',         brand: 'Jabra',       price: 1589.01, stock: 9,  rating: 4.4, available: true,  image: '/images/audio/Product1.jpg' },
+  { name: 'Apple Max 63',         category: 'Audio',         brand: 'Apple',       price: 1503.12, stock: 14, rating: 4.5, available: true,  image: '/images/audio/Product2.jpg' },
+  { name: 'Beats Lite 30',        category: 'Audio',         brand: 'Beats',       price: 1652.18, stock: 7,  rating: 4.2, available: true,  image: '/images/audio/Product3.jpg' },
+  { name: 'Skullcandy Pro 83',    category: 'Audio',         brand: 'Skullcandy',  price: 1867.33, stock: 1,  rating: 3.9, available: true,  image: '/images/audio/Product4.jpg' },
+  { name: 'Sennheiser Lite 20',   category: 'Audio',         brand: 'Sennheiser',  price: 1835.78, stock: 5,  rating: 4.3, available: true,  image: '/images/audio/Product5.jpg' },
+  { name: 'Sony Ultra 69',        category: 'Audio',         brand: 'Sony',        price: 1605.36, stock: 8,  rating: 4.4, available: true,  image: '/images/audio/Product6.jpg' },
+  { name: 'Sennheiser Pro 75',    category: 'Audio',         brand: 'Sennheiser',  price: 867.18,  stock: 12, rating: 4.1, available: true,  image: '/images/audio/Product7.jpg' },
+  { name: 'Bose Pro 78',          category: 'Audio',         brand: 'Bose',        price: 2800.25, stock: 7,  rating: 4.7, available: true,  image: '/images/audio/Product8.jpg' },
+  { name: 'Jabra Ultra 44',       category: 'Audio',         brand: 'Jabra',       price: 1120.50, stock: 10, rating: 4.3, available: true,  image: '/images/audio/Product9.jpg' },
+  { name: 'Beats Max 55',         category: 'Audio',         brand: 'Beats',       price: 980.00,  stock: 6,  rating: 4.2, available: true,  image: '/images/audio/Product10.jpg' },
+  { name: 'Sony Elite 32',        category: 'Audio',         brand: 'Sony',        price: 1450.75, stock: 4,  rating: 4.4, available: true,  image: '/images/audio/Product11.jpg' },
+  { name: 'Bose Air 21',          category: 'Audio',         brand: 'Bose',        price: 2100.00, stock: 3,  rating: 4.6, available: true,  image: '/images/audio/Product12.jpg' },
+  { name: 'Sennheiser Max 90',    category: 'Audio',         brand: 'Sennheiser',  price: 1750.00, stock: 9,  rating: 4.5, available: true,  image: '/images/audio/Product13.jpg' },
+  // Wearables (13)
+  { name: 'Apple Watch Pro 1',    category: 'Wearables',     brand: 'Apple',       price: 799.99,  stock: 11, rating: 4.6, available: true,  image: '/images/wearables/Product1.jpg' },
+  { name: 'Samsung Band 2',       category: 'Wearables',     brand: 'Samsung',     price: 249.99,  stock: 18, rating: 4.0, available: true,  image: '/images/wearables/Product2.jpg' },
+  { name: 'Fitbit Ultra 3',       category: 'Wearables',     brand: 'Fitbit',      price: 349.99,  stock: 18, rating: 4.0, available: true,  image: '/images/wearables/Product3.jpg' },
+  { name: 'Garmin Elite 4',       category: 'Wearables',     brand: 'Garmin',      price: 599.99,  stock: 4,  rating: 4.2, available: true,  image: '/images/wearables/Product4.jpg' },
+  { name: 'Apple Watch SE 5',     category: 'Wearables',     brand: 'Apple',       price: 499.99,  stock: 8,  rating: 4.4, available: true,  image: '/images/wearables/Product5.jpg' },
+  { name: 'Samsung Watch 6',      category: 'Wearables',     brand: 'Samsung',     price: 399.99,  stock: 12, rating: 4.3, available: true,  image: '/images/wearables/Product6.jpg' },
+  { name: 'Fitbit Charge 7',      category: 'Wearables',     brand: 'Fitbit',      price: 179.99,  stock: 20, rating: 4.1, available: true,  image: '/images/wearables/Product7.jpg' },
+  { name: 'Garmin Fenix 8',       category: 'Wearables',     brand: 'Garmin',      price: 899.99,  stock: 3,  rating: 4.7, available: true,  image: '/images/wearables/Product8.jpg' },
+  { name: 'Apple Watch Ultra 9',  category: 'Wearables',     brand: 'Apple',       price: 999.99,  stock: 5,  rating: 4.8, available: true,  image: '/images/wearables/Product9.jpg' },
+  { name: 'Samsung Gear 10',      category: 'Wearables',     brand: 'Samsung',     price: 299.99,  stock: 15, rating: 4.0, available: true,  image: '/images/wearables/Product10.jpg' },
+  { name: 'Fitbit Sense 11',      category: 'Wearables',     brand: 'Fitbit',      price: 279.99,  stock: 16, rating: 4.2, available: true,  image: '/images/wearables/Product11.jpg' },
+  { name: 'Garmin Venu 12',       category: 'Wearables',     brand: 'Garmin',      price: 449.99,  stock: 7,  rating: 4.3, available: true,  image: '/images/wearables/Product12.jpg' },
+  { name: 'Apple Band 13',        category: 'Wearables',     brand: 'Apple',       price: 149.99,  stock: 22, rating: 3.9, available: true,  image: '/images/wearables/Product13.jpg' },
+  // Cameras (13)
+  { name: 'Canon EOS R1',         category: 'Cameras',       brand: 'Canon',       price: 2499.99, stock: 5,  rating: 4.9, available: true,  image: '/images/cameras/Product1.jpg' },
+  { name: 'Sony Alpha A2',        category: 'Cameras',       brand: 'Sony',        price: 1999.99, stock: 0,  rating: 4.5, available: false, image: '/images/cameras/Product2.jpg' },
+  { name: 'Nikon Z9 3',           category: 'Cameras',       brand: 'Nikon',       price: 3499.99, stock: 3,  rating: 4.8, available: true,  image: '/images/cameras/Product3.jpg' },
+  { name: 'Canon PowerShot 4',    category: 'Cameras',       brand: 'Canon',       price: 599.99,  stock: 10, rating: 4.2, available: true,  image: '/images/cameras/Product4.jpg' },
+  { name: 'Sony ZV-E5',           category: 'Cameras',       brand: 'Sony',        price: 999.99,  stock: 8,  rating: 4.4, available: true,  image: '/images/cameras/Product5.jpg' },
+  { name: 'Nikon D850 6',         category: 'Cameras',       brand: 'Nikon',       price: 2799.99, stock: 2,  rating: 4.7, available: true,  image: '/images/cameras/Product6.jpg' },
+  { name: 'Canon M50 7',          category: 'Cameras',       brand: 'Canon',       price: 849.99,  stock: 6,  rating: 4.3, available: true,  image: '/images/cameras/Product7.jpg' },
+  { name: 'Sony A7 IV 8',         category: 'Cameras',       brand: 'Sony',        price: 2499.99, stock: 4,  rating: 4.6, available: true,  image: '/images/cameras/Product8.jpg' },
+  { name: 'Nikon Z6 9',           category: 'Cameras',       brand: 'Nikon',       price: 1999.99, stock: 7,  rating: 4.5, available: true,  image: '/images/cameras/Product9.jpg' },
+  { name: 'Canon R6 10',          category: 'Cameras',       brand: 'Canon',       price: 2299.99, stock: 3,  rating: 4.6, available: true,  image: '/images/cameras/Product10.jpg' },
+  { name: 'Sony A6400 11',        category: 'Cameras',       brand: 'Sony',        price: 899.99,  stock: 9,  rating: 4.3, available: true,  image: '/images/cameras/Product11.jpg' },
+  { name: 'Nikon Z50 12',         category: 'Cameras',       brand: 'Nikon',       price: 799.99,  stock: 11, rating: 4.2, available: true,  image: '/images/cameras/Product12.jpg' },
+  { name: 'Canon R50 13',         category: 'Cameras',       brand: 'Canon',       price: 679.99,  stock: 14, rating: 4.1, available: true,  image: '/images/cameras/Product13.jpg' },
 ];
 
 function getProducts(): Product[] {
   try {
     const raw = localStorage.getItem(STOCK_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed: Product[] = JSON.parse(raw);
+      // If cached data has fewer products than seed, re-seed with full list
+      if (parsed.length < SEED_PRODUCTS.length) {
+        const seeded = SEED_PRODUCTS.map(p => ({ ...p, id: uuid() }));
+        localStorage.setItem(STOCK_KEY, JSON.stringify(seeded));
+        return seeded;
+      }
+      return parsed;
+    }
   } catch { /* fall through */ }
   const seeded = SEED_PRODUCTS.map(p => ({ ...p, id: uuid() }));
   localStorage.setItem(STOCK_KEY, JSON.stringify(seeded));
@@ -125,7 +170,7 @@ function DashboardCharts({ products }: { products: Product[] }) {
     <div className="charts-grid">
       <div className="chart-card">
         <div className="chart-card-header">
-          <h3 className="chart-card-title chart-card-title-blue">
+          <h3 className="chart-title-blue">
             <i className="fas fa-chart-bar"></i> Products by Category
           </h3>
         </div>
@@ -133,7 +178,7 @@ function DashboardCharts({ products }: { products: Product[] }) {
       </div>
       <div className="chart-card">
         <div className="chart-card-header">
-          <h3 className="chart-card-title chart-card-title-purple">
+          <h3 className="chart-title-purple">
             <i className="fas fa-chart-pie"></i> Stock Distribution
           </h3>
         </div>
@@ -155,8 +200,8 @@ type AdminView = 'home' | 'stock' | 'stockForm' | 'cart';
 
 const PAGE_SIZE = 10;
 
-function AdminShell({ onLogout }: { onLogout: () => void }) {
-  const session = readSession()!;
+function AdminShell() {
+  const session = { username: 'Admin', email: 'admin@techhaven.com' };
   const [view, setView]           = useState<AdminView>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [products, setProducts]   = useState<Product[]>(getProducts);
@@ -268,7 +313,7 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
           <a href="/"><i className="fas fa-home"></i> Homepage</a>
         </nav>
         <div className="admin-sidebar-footer">
-          <button type="button" className="admin-logout-btn" onClick={onLogout}><i className="fas fa-sign-out-alt"></i> Sign Out</button>
+          <a href="/" className="admin-logout-btn"><i className="fas fa-home"></i> Back to Store</a>
         </div>
       </aside>
 
@@ -284,7 +329,6 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
               <div className="topbar-avatar">{session.username.charAt(0).toUpperCase()}</div>
               <span className="topbar-username">{session.username}</span>
             </div>
-            <button type="button" className="topbar-logout-btn" onClick={onLogout}><i className="fas fa-sign-out-alt"></i> Logout</button>
           </div>
         </div>
 
@@ -303,20 +347,20 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
               </div>
 
               <div className="kpi-grid">
-                <div className="kpi-card kpi-blue">
-                  <div className="kpi-icon kpi-blue"><i className="fas fa-box-open"></i></div>
+                <div className="kpi-card-blue">
+                  <div className="kpi-icon-blue"><i className="fas fa-box-open"></i></div>
                   <div className="kpi-content"><p className="kpi-value">{kpi.total}</p><p className="kpi-label">Total Products</p></div>
                 </div>
-                <div className="kpi-card kpi-green">
-                  <div className="kpi-icon kpi-green"><i className="fas fa-cubes"></i></div>
+                <div className="kpi-card-green">
+                  <div className="kpi-icon-green"><i className="fas fa-cubes"></i></div>
                   <div className="kpi-content"><p className="kpi-value">{kpi.totalStock.toLocaleString()}</p><p className="kpi-label">Stock Units</p></div>
                 </div>
-                <div className="kpi-card kpi-red">
-                  <div className="kpi-icon kpi-red"><i className="fas fa-times-circle"></i></div>
+                <div className="kpi-card-red">
+                  <div className="kpi-icon-red"><i className="fas fa-times-circle"></i></div>
                   <div className="kpi-content"><p className="kpi-value">{kpi.outOfStock}</p><p className="kpi-label">Out of Stock</p></div>
                 </div>
-                <div className="kpi-card kpi-amber">
-                  <div className="kpi-icon kpi-amber"><i className="fas fa-dollar-sign"></i></div>
+                <div className="kpi-card-amber">
+                  <div className="kpi-icon-amber"><i className="fas fa-dollar-sign"></i></div>
                   <div className="kpi-content"><p className="kpi-value">${(kpi.totalValue / 1000).toFixed(1)}K</p><p className="kpi-label">Inventory Value</p></div>
                 </div>
               </div>
@@ -324,7 +368,7 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
               <DashboardCharts products={products} />
 
               <div className="dash-section-header">
-                <h3 className="section-title section-title-amber"><i className="fas fa-bolt"></i> Quick Actions</h3>
+                <h3 className="section-title-amber"><i className="fas fa-bolt"></i> Quick Actions</h3>
               </div>
               <div className="quick-actions-grid">
                 <a href="#" className="quick-action-card" onClick={e => { e.preventDefault(); navigate('stock'); }}><i className="fas fa-boxes"></i><span>View All Stock</span></a>
@@ -334,7 +378,7 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
               </div>
 
               <div className="dash-section-header">
-                <h3 className="section-title section-title-amber"><i className="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
+                <h3 className="section-title-amber"><i className="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
                 <a href="#" className="section-link" onClick={e => { e.preventDefault(); navigate('stock'); }}>View all</a>
               </div>
               <div className="alert-table">
@@ -363,7 +407,7 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
           {/*  STOCK LIST VIEW  */}
           {view === 'stock' && (
             <div>
-              {notification && <div className="notification-bar success"><i className="fas fa-check-circle"></i><span>{notification}</span></div>}
+              {notification && <div className="notification-success"><i className="fas fa-check-circle"></i><span>{notification}</span></div>}
               <div className="admin-search-bar">
                 <input type="text" placeholder="Search by name or brand..." value={searchQ} onChange={e => { setSearchQ(e.target.value); setPage(1); }} />
                 <select value={catFilter} onChange={e => { setCatFilter(e.target.value); setPage(1); }}>
@@ -426,10 +470,10 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
           {/*  STOCK FORM VIEW  */}
           {view === 'stockForm' && (
             <div className="form-card">
-              {formError && <div className="error-banner visible"><i className="fas fa-exclamation-circle"></i><span>{formError}</span></div>}
+              {formError && <div className="error-banner-visible"><i className="fas fa-exclamation-circle"></i><span>{formError}</span></div>}
               <form onSubmit={handleSave}>
                 <div className="form-grid">
-                  <div className="form-field full-width">
+                  <div className="form-field-full">
                     <label>Product Name <span className="required-star">*</span></label>
                     <input type="text" placeholder="e.g. Apple MacBook Pro 14" value={fName} onChange={e => setFName(e.target.value)} required />
                   </div>
@@ -460,11 +504,11 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
                     <label>Rating (0–5)</label>
                     <input type="number" placeholder="4.5" min={0} max={5} step={0.1} value={fRating} onChange={e => setFRating(e.target.value)} />
                   </div>
-                  <div className="form-field full-width">
+                  <div className="form-field-full">
                     <label>Image Path</label>
                     <input type="text" placeholder="e.g. /images/laptops/Product1.jpg" value={fImage} onChange={e => setFImage(e.target.value)} />
                   </div>
-                  <div className="form-field full-width">
+                  <div className="form-field-full">
                     <div className="checkbox-row">
                       <input type="checkbox" id="f-available" checked={fAvail} onChange={e => setFAvail(e.target.checked)} />
                       <label htmlFor="f-available">Available for purchase</label>
@@ -472,7 +516,7 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
                   </div>
                 </div>
                 <div className="form-actions">
-                  <button type="submit" className="btn lg-button"><i className="fas fa-save"></i> Save Product</button>
+                  <button type="submit" className="btn-lg"><i className="fas fa-save"></i> Save Product</button>
                   <button type="button" className="btn-outline-lg" onClick={() => navigate('stock')}><i className="fas fa-times"></i> Cancel</button>
                 </div>
               </form>
@@ -486,10 +530,10 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
               {(() => {
                 let items: { name: string; price: number; qty: number; image: string; category: string }[] = [];
                 try { items = JSON.parse(localStorage.getItem('cartItems') || '[]'); } catch { items = []; }
-                if (items.length === 0) return <div className="admin-empty-state dash-cart-empty"><i className="fas fa-shopping-cart"></i><h3>Cart is empty</h3><p>No items in the customer cart.</p></div>;
+                if (items.length === 0) return <div className="dash-cart-empty"><i className="fas fa-shopping-cart"></i><h3>Cart is empty</h3><p>No items in the customer cart.</p></div>;
                 const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
                 return (
-                  <div className="table-wrapper dash-cart-table-wrap">
+                  <div className="dash-cart-table">
                     <table className="stock-table">
                       <thead><tr><th>Product</th><th>Category</th><th>Unit Price</th><th>Qty</th><th>Total</th></tr></thead>
                       <tbody>
@@ -520,147 +564,9 @@ function AdminShell({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-//  Main Dashboard (auth gate) 
+//  Main Dashboard — opens directly, no login required
 function Dashboard() {
-  const [mode, setMode]       = useState<'login' | 'register'>('login');
-  const [loggedIn, setLoggedIn] = useState(isAuthenticated);
-
-  const [loginEmail, setLoginEmail]       = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [rememberMe, setRememberMe]       = useState(false);
-  const [loginError, setLoginError]       = useState('');
-
-  const [regUsername, setRegUsername] = useState('');
-  const [regEmail, setRegEmail]       = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regConfirm, setRegConfirm]   = useState('');
-  const [regError, setRegError]       = useState('');
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault(); setLoginError('');
-    if (!loginEmail.trim()) { setLoginError('Email is required.'); return; }
-    if (!loginPassword)     { setLoginError('Password is required.'); return; }
-    const accounts = readAccounts();
-    if (accounts.length === 0) {
-      // Demo mode — accept any credentials
-      writeSession({ username: loginEmail.split('@')[0], email: loginEmail.trim().toLowerCase(), expiresAt: rememberMe ? Date.now() + SESSION_7D : Infinity });
-      setLoggedIn(true); return;
-    }
-    const account = accounts.find(a => a.email.toLowerCase() === loginEmail.trim().toLowerCase() && a.password === loginPassword);
-    if (!account) { setLoginError('Invalid email or password.'); return; }
-    writeSession({ username: account.username, email: account.email, expiresAt: rememberMe ? Date.now() + SESSION_7D : Infinity });
-    setLoggedIn(true);
-  };
-
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault(); setRegError('');
-    if (!regUsername.trim())    { setRegError('Full name is required.'); return; }
-    if (!regEmail.trim())       { setRegError('Email is required.'); return; }
-    if (!regPassword)           { setRegError('Password is required.'); return; }
-    if (regPassword.length < 8) { setRegError('Password must be at least 8 characters.'); return; }
-    if (regPassword !== regConfirm) { setRegError('Passwords do not match.'); return; }
-    const accounts = readAccounts();
-    if (accounts.some(a => a.email.toLowerCase() === regEmail.trim().toLowerCase())) { setRegError('An account with this email already exists.'); return; }
-    accounts.push({ username: regUsername.trim(), email: regEmail.trim().toLowerCase(), password: regPassword });
-    writeAccounts(accounts);
-    setMode('login'); setLoginEmail(regEmail.trim().toLowerCase());
-    setRegUsername(''); setRegEmail(''); setRegPassword(''); setRegConfirm('');
-  };
-
-  const handleLogout = () => { clearSession(); setLoggedIn(false); setMode('login'); };
-
-  if (loggedIn) return <AdminShell onLogout={handleLogout} />;
-
-  return (
-    <div className="auth-page-wrapper">
-      <div className="auth-page">
-        <div className="auth-left">
-          <div className="auth-left-content">
-            <div className="auth-logo-row">
-              <div className="auth-logo-box">TH</div>
-              <span className="auth-logo-text">TechHaven</span>
-            </div>
-            <h1 className="auth-left-heading">{mode === 'login' ? 'Manage your store with confidence' : 'Get started in minutes'}</h1>
-            <p className="auth-left-sub">{mode === 'login' ? 'Full control over inventory, orders, and store performance.' : 'Create your admin account and take full control.'}</p>
-            <ul className="auth-features">
-              <li><div className="auth-feature-icon"><i className="fas fa-chart-line"></i></div> Real-time inventory analytics</li>
-              <li><div className="auth-feature-icon"><i className="fas fa-boxes"></i></div> Full stock CRUD management</li>
-              <li><div className="auth-feature-icon"><i className="fas fa-shield-alt"></i></div> Secure session-based access</li>
-              <li><div className="auth-feature-icon"><i className="fas fa-bell"></i></div> Low stock alerts</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="auth-right">
-          <h2 className="auth-right-heading">{mode === 'login' ? 'Sign in' : 'Create account'}</h2>
-          <p className="auth-right-sub">{mode === 'login' ? 'Enter your credentials to access the admin panel' : 'Register to access the TechHaven admin panel'}</p>
-
-          {mode === 'login' && (
-            <form onSubmit={handleLogin}>
-              {loginError && <div className="auth-error-banner visible"><i className="fas fa-exclamation-circle"></i><span>{loginError}</span></div>}
-              <div className="auth-form-group">
-                <label htmlFor="login-email">Email address</label>
-                <div className="auth-input-wrap"><i className="fas fa-envelope"></i>
-                  <input type="email" id="login-email" placeholder="admin@techhaven.com" value={loginEmail} onChange={e => { setLoginEmail(e.target.value); setLoginError(''); }} />
-                </div>
-              </div>
-              <div className="auth-form-group">
-                <label htmlFor="login-password">Password</label>
-                <div className="auth-input-wrap"><i className="fas fa-lock"></i>
-                  <input type="password" id="login-password" placeholder="" value={loginPassword} onChange={e => { setLoginPassword(e.target.value); setLoginError(''); }} />
-                </div>
-              </div>
-              <div className="auth-remember-row">
-                <label className="auth-remember-label"><input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} /> Remember me for 7 days</label>
-              </div>
-              <button type="submit" className="auth-submit-btn"><i className="fas fa-sign-in-alt"></i> Sign In to Dashboard</button>
-            </form>
-          )}
-
-          {mode === 'register' && (
-            <form onSubmit={handleRegister}>
-              {regError && <div className="auth-error-banner visible"><i className="fas fa-exclamation-circle"></i><span>{regError}</span></div>}
-              <div className="auth-form-group">
-                <label htmlFor="reg-username">Full Name</label>
-                <div className="auth-input-wrap"><i className="fas fa-user"></i>
-                  <input type="text" id="reg-username" placeholder="John Doe" value={regUsername} onChange={e => { setRegUsername(e.target.value); setRegError(''); }} />
-                </div>
-              </div>
-              <div className="auth-form-group">
-                <label htmlFor="reg-email">Email address</label>
-                <div className="auth-input-wrap"><i className="fas fa-envelope"></i>
-                  <input type="email" id="reg-email" placeholder="admin@techhaven.com" value={regEmail} onChange={e => { setRegEmail(e.target.value); setRegError(''); }} />
-                </div>
-              </div>
-              <div className="auth-form-group">
-                <label htmlFor="reg-password">Password</label>
-                <div className="auth-input-wrap"><i className="fas fa-lock"></i>
-                  <input type="password" id="reg-password" placeholder="Min. 8 characters" value={regPassword} onChange={e => { setRegPassword(e.target.value); setRegError(''); }} />
-                </div>
-                <p className="auth-password-hint">Must be at least 8 characters</p>
-              </div>
-              <div className="auth-form-group">
-                <label htmlFor="reg-confirm">Confirm Password</label>
-                <div className="auth-input-wrap"><i className="fas fa-lock"></i>
-                  <input type="password" id="reg-confirm" placeholder="Repeat your password" value={regConfirm} onChange={e => { setRegConfirm(e.target.value); setRegError(''); }} />
-                </div>
-              </div>
-              <button type="submit" className="auth-submit-btn"><i className="fas fa-user-plus"></i> Create Admin Account</button>
-            </form>
-          )}
-
-          <div className="auth-divider">or</div>
-          <div className="auth-footer-link">
-            {mode === 'login' ? 'No account?' : 'Already have an account?'}{' '}
-            <button type="button" className="link-button" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setLoginError(''); setRegError(''); }}>
-              {mode === 'login' ? 'Create one here' : 'Sign in here'}
-            </button>
-          </div>
-          <div className="auth-footer-link"><a href="/"> Back to store</a></div>
-        </div>
-      </div>
-    </div>
-  );
+  return <AdminShell />;
 }
 
 export default Dashboard;

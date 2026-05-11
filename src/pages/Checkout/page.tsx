@@ -54,7 +54,7 @@ function Checkout() {
           <p className="checkout-success-order">Order {orderNum}</p>
           <p>A confirmation email will be sent to you shortly.</p>
           <div className="checkout-success-actions">
-            <Link to="/" className="btn lg-button">Back to Home</Link>
+            <Link to="/" className="btn-lg">Back to Home</Link>
             <Link to="/shop" className="btn-outline-lg">Continue Shopping</Link>
           </div>
         </div>
@@ -71,17 +71,17 @@ function Checkout() {
 
       <div className="checkout-steps">
         <div className="checkout-step">
-          <div className="checkout-step-num checkout-step-num-active">1</div>
+          <div className="checkout-step-active">1</div>
           <span className="checkout-step-label-active">Cart</span>
         </div>
         <div className="checkout-step-line"><div className="checkout-step-line-active"></div></div>
         <div className="checkout-step">
-          <div className="checkout-step-num checkout-step-num-active">2</div>
+          <div className="checkout-step-active">2</div>
           <span className="checkout-step-label-active">Checkout</span>
         </div>
         <div className="checkout-step-line"><div className="checkout-step-line-inactive"></div></div>
         <div className="checkout-step">
-          <div className="checkout-step-num checkout-step-num-inactive">3</div>
+          <div className="checkout-step-inactive">3</div>
           <span className="checkout-step-label-inactive">Confirmation</span>
         </div>
       </div>
@@ -223,7 +223,7 @@ function Checkout() {
           </div>
           <div className="order-totals-section">
             <div className="totals-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-            <div className="totals-row free"><span>Shipping</span><span>Free</span></div>
+            <div className="totals-row-free"><span>Shipping</span><span>Free</span></div>
             <div className="totals-row"><span>Tax (8%)</span><span>${tax.toFixed(2)}</span></div>
             <div className="totals-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
           </div>
@@ -231,7 +231,7 @@ function Checkout() {
             <button
               type="submit"
               form="checkout-form"
-              className="btn-primary-lg checkout-place-btn"
+              className="checkout-place-btn"
               disabled={placing || cart.length === 0}
             >
               {placing

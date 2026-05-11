@@ -62,7 +62,7 @@ function Cart() {
   const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
   return (
-    <main className="page">
+    <main className="cart-page">
       <section className="cart-hero">
         <h1>Your Cart</h1>
         <p>Review your items before checkout.</p>
@@ -90,7 +90,7 @@ function Cart() {
                 <i className="fas fa-shopping-cart"></i>
                 <h3>Your cart is empty</h3>
                 <p>Looks like you haven't added anything yet.</p>
-                <Link to="/shop" className="btn lg-button">Start Shopping</Link>
+                <Link to="/shop" className="btn-lg">Start Shopping</Link>
               </div>
             ) : (
               cart.map((item, i) => (
@@ -133,7 +133,7 @@ function Cart() {
           </div>
 
           <div className="cart-continue-row">
-            <Link to="/shop" className="btn border-button">
+            <Link to="/shop" className="btn-outline">
               <i className="fas fa-arrow-left"></i> Continue Shopping
             </Link>
           </div>

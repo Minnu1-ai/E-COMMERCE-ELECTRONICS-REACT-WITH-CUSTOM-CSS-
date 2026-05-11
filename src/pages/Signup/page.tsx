@@ -23,7 +23,6 @@ function Signup() {
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     if (!agreed) { setError('You must agree to the Terms & Conditions.'); return; }
 
-    // Check for duplicate email
     let accounts: { email: string; password: string; firstName: string; lastName: string }[] = [];
     try { accounts = JSON.parse(localStorage.getItem('userAccounts') || '[]'); } catch { accounts = []; }
 
@@ -51,7 +50,7 @@ function Signup() {
           </div>
 
           {error && (
-            <div className="auth-error-banner visible">
+            <div className="auth-error-visible">
               <i className="fas fa-exclamation-circle"></i>
               <span>{error}</span>
             </div>
@@ -118,7 +117,7 @@ function Signup() {
               I agree to the Terms &amp; Conditions
             </label>
           </div>
-          <button type="submit" className="btn-primary-lg form-submit-btn">Create Account</button>
+          <button type="submit" className="form-submit-btn">Create Account</button>
           <div className="form-footer-text">
             Already have an account? <Link to="/login" className="form-footer-link">Login here</Link>
           </div>

@@ -33,10 +33,6 @@ function Product() {
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const handleThumbClick = (index: number) => {
-    setActiveImg(index);
-  };
-
   return (
     <main className="page">
       <div className="product-breadcrumb">
@@ -46,7 +42,7 @@ function Product() {
       </div>
 
       <section>
-        <div className="card product-layout">
+        <div className="product-layout">
           <div className="product-gallery-col">
             <div className="product-main-img-box">
               <img src={PRODUCT.images[activeImg]} alt="Premium Wireless Headphones" className="product-main-img" />
@@ -56,7 +52,7 @@ function Product() {
                 <div
                   key={i}
                   className={`product-thumb${activeImg === i ? ' product-thumb-active' : ''}`}
-                  onClick={() => handleThumbClick(i)}
+                  onClick={() => setActiveImg(i)}
                 >
                   <img
                     src={src}
@@ -123,7 +119,7 @@ function Product() {
               </div>
               <button
                 type="button"
-                className={`btn-add-to-cart${added ? ' btn-added-green' : ''}`}
+                className={added ? 'btn-add-to-cart-green' : 'btn-add-to-cart'}
                 onClick={handleAddToCart}
               >
                 <i className={`fas ${added ? 'fa-check' : 'fa-shopping-cart'}`}></i>{' '}
@@ -136,7 +132,7 @@ function Product() {
 
       <section>
         <h2>Product Details</h2>
-        <div className="card product-details-card">
+        <div className="product-details-card">
           <div className="product-desc-col">
             <h3>Description</h3>
             <p>Experience your music like never before. With two processors controlling eight microphones, our Auto NC Optimizer automatically optimizes noise canceling based on your wearing conditions and environment.</p>

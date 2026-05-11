@@ -8,7 +8,7 @@ function Blog() {
 
       <section>
         <div className="card-container">
-          <article className="card blog-card">
+          <article className="blog-card">
             <img src="/images/laptops/Product1.jpg" alt="Laptop Buying Guide" className="blog-card-img" />
             <div className="card-body">
               <span className="blog-tag">Buying Guide</span>
@@ -21,7 +21,7 @@ function Blog() {
             </div>
           </article>
 
-          <article className="card blog-card">
+          <article className="blog-card">
             <img src="/images/audio/Product1.jpg" alt="Headphone Comparison" className="blog-card-img" />
             <div className="card-body">
               <span className="blog-tag">Review</span>
@@ -34,7 +34,7 @@ function Blog() {
             </div>
           </article>
 
-          <article className="card blog-card">
+          <article className="blog-card">
             <img src="/images/wearables/Product1.jpg" alt="Wearable Technology" className="blog-card-img" />
             <div className="card-body">
               <span className="blog-tag">News</span>
@@ -47,7 +47,7 @@ function Blog() {
             </div>
           </article>
 
-          <article className="card blog-card">
+          <article className="blog-card">
             <img src="/images/cameras/Product1.jpg" alt="Mirrorless Camera Guide" className="blog-card-img" />
             <div className="card-body">
               <span className="blog-tag">Tutorial</span>
@@ -62,7 +62,7 @@ function Blog() {
         </div>
 
         <div className="blog-load-more">
-          <button className="btn border-button">Load More Articles</button>
+          <button className="btn-outline">Load More Articles</button>
         </div>
       </section>
     </main>

@@ -202,7 +202,7 @@ function Shop() {
             </div>
           </div>
 
-          <button type="button" className="btn border-button" onClick={handleApplyFilters}>
+          <button type="button" className="btn-outline" onClick={handleApplyFilters}>
             Apply Filters
           </button>
         </aside>
@@ -227,7 +227,7 @@ function Shop() {
             </select>
           </div>
 
-          <div className="card-container shop-grid">
+          <div className="shop-grid">
             {filteredProducts.map((product) => {
               const isAdded = addedIds.has(product.id);
               return (
@@ -242,7 +242,7 @@ function Shop() {
                       <span className="price">${product.price.toFixed(2)}</span>
                       <button
                         type="button"
-                        className={isAdded ? 'btn add-btn-added-green' : 'btn add-btn'}
+                        className={isAdded ? 'add-btn-added-green' : 'add-btn'}
                         aria-label="Add to cart"
                         onClick={() => handleAddToCart(product)}
                       >

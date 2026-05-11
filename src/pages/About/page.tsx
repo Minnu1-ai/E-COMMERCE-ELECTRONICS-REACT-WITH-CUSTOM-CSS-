@@ -36,18 +36,18 @@ function About() {
           <h2>Why Choose Us?</h2>
           <p>We're more than just an electronics store.</p>
         </div>
-        <div className="card-container about-cards-no-margin">
-          <div className="card about-feature-card">
+        <div className="about-cards-grid">
+          <div className="about-feature-card">
             <div className="about-feature-icon"><i className="fas fa-shipping-fast"></i></div>
             <h3>Fast Shipping</h3>
             <p>Free standard shipping on all orders over $50. Need it faster? We offer expedited options too.</p>
           </div>
-          <div className="card about-feature-card">
+          <div className="about-feature-card">
             <div className="about-feature-icon"><i className="fas fa-shield-alt"></i></div>
             <h3>Secure Checkout</h3>
             <p>Your data is safe with us. We use industry-leading encryption to protect your personal information.</p>
           </div>
-          <div className="card about-feature-card">
+          <div className="about-feature-card">
             <div className="about-feature-icon"><i className="fas fa-undo"></i></div>
             <h3>Easy Returns</h3>
             <p>Not completely satisfied? Return your item within 30 days for a full refund or exchange.</p>

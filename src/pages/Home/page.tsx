@@ -46,7 +46,7 @@ function Home() {
   return (
     <main className="page">
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <section className="index-hero">
         <h1 className="index-hero-heading">Next-Gen Tech For Your Lifestyle</h1>
         <p className="index-hero-subtext">
@@ -59,11 +59,11 @@ function Home() {
         </div>
       </section>
 
-      {/* ── Shop by Category ── */}
+      {/* Shop by Category */}
       <section>
         <div className="section-title-row">
           <h2 className="h2-no-margin">Shop by Category</h2>
-          <Link to="/shop" className="btn border-button">View all categories &rarr;</Link>
+          <Link to="/shop" className="btn-outline">View all categories &rarr;</Link>
         </div>
 
         <div className="card-container">
@@ -98,14 +98,14 @@ function Home() {
         </div>
       </section>
 
-      {/* ── Trending Now ── */}
+      {/* Trending Now */}
       <section>
-        <div className="home-section-header home-section-header--center">
+        <div className="trending-section-header">
           <h2>Trending Now</h2>
           <p className="home-section-sub">Top picks from our community</p>
         </div>
 
-        <div className="card-container trending">
+        <div className="trending-grid">
           {trendingProducts.map((product) => {
             const isAdded = addedIds.has(product.id);
             return (
@@ -120,7 +120,7 @@ function Home() {
                     <span className="price">${product.price}</span>
                     <button
                       type="button"
-                      className={`btn add-btn${isAdded ? ' btn-added-green' : ''}`}
+                      className={isAdded ? 'add-btn-added-green' : 'add-btn'}
                       aria-label="Add to cart"
                       onClick={() => handleAddToCart(product)}
                     >

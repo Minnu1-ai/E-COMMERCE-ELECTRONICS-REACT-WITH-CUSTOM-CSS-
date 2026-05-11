@@ -14,12 +14,10 @@ function Login() {
     if (!email.trim()) { setError('Email is required.'); return; }
     if (!password) { setError('Password is required.'); return; }
 
-    // Check against stored accounts if any exist
     let accounts: { email: string; password: string; firstName: string }[] = [];
     try { accounts = JSON.parse(localStorage.getItem('userAccounts') || '[]'); } catch { accounts = []; }
 
     if (accounts.length > 0) {
-      // Validate against registered accounts
       const match = accounts.find(
         (a) => a.email.toLowerCase() === email.trim().toLowerCase() && a.password === password
       );
@@ -29,7 +27,6 @@ function Login() {
       }
       localStorage.setItem('userSession', JSON.stringify({ email: match.email, firstName: match.firstName }));
     } else {
-      // No accounts registered yet — accept any credentials (demo mode)
       const firstName = email.split('@')[0];
       localStorage.setItem('userSession', JSON.stringify({ email: email.trim().toLowerCase(), firstName }));
     }
@@ -51,7 +48,7 @@ function Login() {
           </div>
 
           {error && (
-            <div className="auth-error-banner visible">
+            <div className="auth-error-visible">
               <i className="fas fa-exclamation-circle"></i>
               <span>{error}</span>
             </div>
@@ -83,7 +80,7 @@ function Login() {
             </label>
             <a href="#" className="form-forgot-link">Forgot Password?</a>
           </div>
-          <button type="submit" className="btn-primary-lg form-submit-btn">Sign In</button>
+          <button type="submit" className="form-submit-btn">Sign In</button>
           <div className="form-footer-text">
             Don't have an account? <Link to="/signup" className="form-footer-link">Register here</Link>
           </div>

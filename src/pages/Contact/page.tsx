@@ -24,21 +24,21 @@ function Contact() {
 
       <section className="contact-layout">
         <div className="contact-info-col">
-          <div className="card contact-card">
+          <div className="contact-card">
             <div className="contact-icon-box"><i className="fas fa-map-marker-alt"></i></div>
             <div>
               <h4 className="contact-card-title">Our Office</h4>
               <p className="contact-card-text">123 Tech Boulevard, Innovation City, CA 94043</p>
             </div>
           </div>
-          <div className="card contact-card">
+          <div className="contact-card">
             <div className="contact-icon-box"><i className="fas fa-phone"></i></div>
             <div>
               <h4 className="contact-card-title">Phone</h4>
               <p className="contact-card-text">+1 (555) 123-4567</p>
             </div>
           </div>
-          <div className="card contact-card">
+          <div className="contact-card">
             <div className="contact-icon-box"><i className="fas fa-envelope"></i></div>
             <div>
               <h4 className="contact-card-title">Email</h4>
@@ -48,7 +48,7 @@ function Contact() {
         </div>
 
         <div className="contact-form-col">
-          <form className="form-container contact-form-inner" onSubmit={handleSubmit}>
+          <form className="contact-form" onSubmit={handleSubmit}>
             <h3 className="contact-form-title">Send Us a Message</h3>
             <div className="contact-name-row">
               <div className="contact-name-col">
